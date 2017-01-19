@@ -2,10 +2,10 @@ package ru.khasanov.service;
 
 import org.jboss.logging.Logger;
 import ru.khasanov.model.TODOItem;
-import ru.khasanov.templater.PageGenerator;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
@@ -19,17 +19,30 @@ public class TODOItemCRUDService {
     private AtomicLong idGenerator = new AtomicLong(1);
     private volatile Map<Long, TODOItem> database = new HashMap<>();
 
+    @POST
+    @Produces("application/json")
+    @Consumes("application/json")
+    public Response createTODOItem(TODOItem todoItem) {
+        log.debug("POST /api/todo_item/ - " + todoItem);
+        if (todoItem.getId() != null) {
+            return Response.status(Response.Status.BAD_REQUEST).entity("Don't set id.").build();
+        }
+        todoItem.setId(idGenerator.getAndIncrement());
+        database.put(todoItem.getId(), todoItem);
+        return Response.status(Response.Status.CREATED).entity(todoItem).build();
+    }
+
     @GET
     @Path("/{id}")
     @Produces("application/json")
     @Consumes("application/json")
-    public Response readTODOItem(@PathParam("id") long id) {
+    public TODOItem readTODOItem(@PathParam("id") long id) {
         log.debug("GET /api/todo_item/" + id);
         TODOItem todoItem = database.get(id);
         if (todoItem == null) {
-            return Response.status(Response.Status.NOT_FOUND).build();
+            throw new NotFoundException();
         }
-        return Response.status(Response.Status.OK).entity(todoItem).build();
+        return todoItem;
     }
 
     @GET
@@ -40,7 +53,10 @@ public class TODOItemCRUDService {
         log.debug("PUT /api/todo_item/" + id + " - " + requestTodoItem);
         TODOItem todoItem = database.get(id);
         if (todoItem == null) {
-            return Response.status(Response.Status.NOT_FOUND).build();
+            throw new NotFoundException();
+        }
+        if (!todoItem.getId().equals(requestTodoItem.getId())) {
+            throw new BadRequestException();
         }
         todoItem.setTitle(requestTodoItem.getTitle());
         todoItem.setCompleted(requestTodoItem.isCompleted());
@@ -55,31 +71,14 @@ public class TODOItemCRUDService {
             database.remove(id);
             return Response.status(Response.Status.NO_CONTENT).build();
         }
-        return Response.status(Response.Status.NOT_FOUND).build();
+        throw new NotFoundException();
     }
-
 
     @GET
     @Produces("application/json")
     @Consumes("application/json")
-    public Response listTODOItem() {
+    public Collection<TODOItem> listTODOItem() {
         log.debug("GET /api/todo_item/");
-        Map<String, Object> pageVars = new HashMap<>();
-        pageVars.put("TODOItems", database.values());
-        String page = PageGenerator.getPage("index.html", pageVars);
-        return Response.status(Response.Status.OK).entity(page).build();
-    }
-
-    @POST
-    @Produces("application/json")
-    @Consumes("application/json")
-    public Response createTODOItem(TODOItem todoItem) {
-        log.debug("POST /api/todo_item/ - " + todoItem);
-        if (todoItem.getId() != null) {
-            return Response.status(Response.Status.BAD_REQUEST).entity("Don't set id.").build();
-        }
-        todoItem.setId(idGenerator.getAndIncrement());
-        database.put(todoItem.getId(), todoItem);
-        return Response.status(Response.Status.CREATED).entity(todoItem).build();
+        return database.values();
     }
 }
