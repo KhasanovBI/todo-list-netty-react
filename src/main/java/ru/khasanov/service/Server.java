@@ -16,6 +16,7 @@ public class Server {
         netty.setDeployment(deployment);
         netty.setPort(PORT);
         netty.setSecurityDomain(null);
+        netty.setRootResourcePath("");
         netty.start();
     }
 }

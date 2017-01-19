@@ -15,6 +15,7 @@ public class TODOApplication extends Application {
 
     public TODOApplication() {
         singletons.add(new TODOItemCRUDService());
+        singletons.add(new IndexStaticService());
     }
 
     @Override

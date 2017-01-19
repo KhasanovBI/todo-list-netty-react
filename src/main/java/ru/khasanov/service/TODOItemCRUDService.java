@@ -6,7 +6,6 @@ import ru.khasanov.templater.PageGenerator;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
@@ -67,7 +66,7 @@ public class TODOItemCRUDService {
         log.debug("GET /api/todo_item/");
         Map<String, Object> pageVars = new HashMap<>();
         pageVars.put("TODOItems", database.values());
-        String page = PageGenerator.getPage("react/index.html", pageVars);
+        String page = PageGenerator.getPage("index.html", pageVars);
         return Response.status(Response.Status.OK).entity(page).build();
     }
 
