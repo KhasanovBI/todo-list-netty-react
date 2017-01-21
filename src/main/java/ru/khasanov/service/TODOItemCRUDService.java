@@ -45,7 +45,7 @@ public class TODOItemCRUDService {
         return todoItem;
     }
 
-    @GET
+    @PUT
     @Path("/{id}")
     @Produces("application/json")
     @Consumes("application/json")
