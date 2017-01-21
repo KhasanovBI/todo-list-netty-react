@@ -1,9 +1,10 @@
-package ru.khasanov.service;
+package ru.khasanov;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.jboss.resteasy.plugins.server.netty.NettyJaxrsServer;
 import org.jboss.resteasy.spi.ResteasyDeployment;
+import ru.khasanov.service.TODOApplication;
 
 public class Server {
     private static final int PORT = 8080;

@@ -2,6 +2,7 @@ package ru.khasanov.service;
 
 import org.jboss.logging.Logger;
 import ru.khasanov.model.TODOItem;
+import ru.khasanov.service.input.ToggleInput;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
@@ -33,7 +34,7 @@ public class TODOItemCRUDService {
     }
 
     @GET
-    @Path("/{id}")
+    @Path("/{id: \\d+}")
     @Produces("application/json")
     @Consumes("application/json")
     public TODOItem readTODOItem(@PathParam("id") long id) {
@@ -46,7 +47,7 @@ public class TODOItemCRUDService {
     }
 
     @PUT
-    @Path("/{id}")
+    @Path("/{id: \\d+}")
     @Produces("application/json")
     @Consumes("application/json")
     public Response updateTODOItem(@PathParam("id") long id, TODOItem requestTodoItem) {
@@ -64,7 +65,7 @@ public class TODOItemCRUDService {
     }
 
     @DELETE
-    @Path("/{id}")
+    @Path("/{id: \\d+}")
     public Response deleteTODOItem(@PathParam("id") long id) {
         log.debug("DELETE /api/todo_item/" + id);
         if (database.containsKey(id)) {
@@ -79,6 +80,25 @@ public class TODOItemCRUDService {
     @Consumes("application/json")
     public Collection<TODOItem> listTODOItem() {
         log.debug("GET /api/todo_item/");
+        return database.values();
+    }
+
+    @PUT
+    @Path("/clear_completed")
+    @Produces("application/json")
+    public Collection<TODOItem> clearCompletedListTODOItem() {
+        log.info("GET /api/todo_item/clear_comleted");
+        database.entrySet().removeIf(entry -> entry.getValue().isCompleted());
+        return database.values();
+    }
+
+    @PUT
+    @Path("/toggle")
+    @Produces("application/json")
+    @Consumes("application/json")
+    public Collection<TODOItem> toggleListTODOItem(ToggleInput toggleInput) {
+        log.debug("GET /api/todo_item/toggle");
+        database.values().parallelStream().forEach(todoItem -> todoItem.setCompleted(toggleInput.isCompleted()));
         return database.values();
     }
 }

@@ -48,12 +48,6 @@ var app = app || {};
             });
     };
 
-    app.TodoModel.prototype.prepareUpdateMap = function (todoItem, newParams) {
-
-        todoItem
-
-    };
-
     app.TodoModel.prototype.update = function (todoItem, newParams) {
         var newTodoItem = Utils.extend({}, todoItem, newParams);
         fetch(URL + todoItem.id, {
@@ -106,7 +100,6 @@ var app = app || {};
             })
             .then(function (responseJSON) {
                 this.todos = responseJSON;
-                console.log(this.todos);
                 this.inform();
             }.bind(this))
             .catch(function (error) {
@@ -116,15 +109,24 @@ var app = app || {};
 
 
     app.TodoModel.prototype.toggleAll = function (checked) {
-        // Note: it's usually better to use immutable data structures since they're
-        // easier to reason about and React works very well with them. That's why
-        // we use map() and filter() everywhere instead of mutating the array or
-        // todo items themselves.
-        this.todos = this.todos.map(function (todo) {
-            return Utils.extend({}, todo, {completed: checked});
-        });
-
-        this.inform();
+        return fetch(URL + 'toggle', {
+            method: 'PUT',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({completed: checked})
+        })
+            .then(function (response) {
+                return response.json();
+            })
+            .then(function (responseJSON) {
+                this.todos = responseJSON;
+                this.inform();
+            }.bind(this))
+            .catch(function (error) {
+                console.log(error);
+            });
     };
 
     app.TodoModel.prototype.toggle = function (todoToToggle) {
@@ -132,19 +134,26 @@ var app = app || {};
     };
 
     app.TodoModel.prototype.save = function (todoToSave, text) {
-        this.todos = this.todos.map(function (todo) {
-            return todo !== todoToSave ? todo : Utils.extend({}, todo, {title: text});
-        });
-
-        this.inform();
+        this.update(todoToSave, {title: text});
     };
 
     app.TodoModel.prototype.clearCompleted = function () {
-        this.todos = this.todos.filter(function (todo) {
-            return !todo.completed;
-        });
-
-        this.inform();
+        return fetch(URL + 'clear_completed', {
+            method: 'PUT',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            }
+        })
+            .then(function (response) {
+                return response.json();
+            })
+            .then(function (responseJSON) {
+                this.todos = responseJSON;
+                this.inform();
+            }.bind(this))
+            .catch(function (error) {
+                console.log(error);
+            });
     };
-
 })();
