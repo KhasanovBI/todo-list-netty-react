@@ -6,7 +6,7 @@ package ru.khasanov.model;
 public class TODOItem {
     private Long id;
     private String title;
-    private boolean completed;
+    private volatile boolean completed;
 
     public Long getId() {
         return id;
