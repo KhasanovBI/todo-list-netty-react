@@ -7,8 +7,8 @@ import ru.khasanov.service.input.ToggleInput;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -18,7 +18,7 @@ import java.util.concurrent.atomic.AtomicLong;
 public class TODOItemCRUDService {
     private static Logger log = Logger.getLogger(TODOItemCRUDService.class);
     private AtomicLong idGenerator = new AtomicLong(1);
-    private volatile Map<Long, TODOItem> database = new HashMap<>();
+    private volatile Map<Long, TODOItem> database = new ConcurrentHashMap<>();
 
     @POST
     @Produces("application/json")
